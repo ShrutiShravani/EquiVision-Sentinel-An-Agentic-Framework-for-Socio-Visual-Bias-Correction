@@ -1,0 +1,6 @@
+CLINICAL_PATH = r"data\data\Data_Entry_2017.csv"
+ADI_PATH = r"data\data\WI_2023_ADI_9 Digit Zip Code_v4_0_1.csv"
+IMAGES_PATH = r"data\images"
+PROCESSED_PATH = r"data\processed"
+STATS_PATH= r"data\processed\glob_norm.json"
+WEIGHTS_PATH=r"data\processed\weights.json"

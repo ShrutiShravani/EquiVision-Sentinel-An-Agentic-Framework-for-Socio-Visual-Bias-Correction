@@ -1,0 +1,15 @@
+stages:
+  preprocessing:
+    cmd: python -m workflow.pipeline.data_preprocessing
+    deps:
+      - data/data/Data_Entry_2017.csv
+      - data/data/WI_2023_ADI_9 Digit Zip Code_v4_0_1.csv
+      - data/images
+      - config/path.yaml
+      - workflow/pipeline/data_preprocessing.py
+    outs:
+      - data/processed/clinical_data.csv
+      - data/processed/spatial_data.csv
+      - data/processed/glob_norm.json
+      - data/processed/weights.json
+      - data/processed/processed_data.csv

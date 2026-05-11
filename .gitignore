@@ -23,3 +23,5 @@ DOCS/metrics.md
 __pycache__/
 .DS_Store
 venv
+.dvc
+**/__pycache__/

@@ -1,65 +1,38 @@
-from exception import HEPException
-from logger import logging
-import os,sys
 import pandas as pd
 
-def bridge_linkage_engine(clinical_df,adi_df):
-    try:
-        """
-        Inputs:
-        nih_clinical_df: Rows from NIH (Age, Gender, Label)
-        wi_adi_df: Wisconsin ADI data by Pincode/Zip
-        """
-        master_records = []
 
-        # Iterate through each NIH patient
-        for _, patient in clinical_df.iterrows():
-            age = patient['Patient Age']
-            gender = patient['Patient Gender']
-            
-            # --- THE BRIDGE LOGIC (Based on Finding #3, #5, #6) ---
-            
-            # If High Risk Demographic (Elderly or Disconnected Youth)
-            if age >= 65 or age <= 24:
-                # Finding #3 & #6: Assign to high-deprivation/rural ADI blocks (Rank 8-10)
-                sampled_context = adi_df[adi_df['ADI_STATERNK'] >= 8].sample(1)
-            else:
-                # Finding #5: General structural distribution
-                sampled_context = adi_df.sample(1)
+def bridge_linkage_engine(clinical_df: pd.DataFrame, adi_df: pd.DataFrame):
 
-            # --- EXTRACTING THE INFORMATICS VECTOR ---
-            adi_rank = sampled_context['ADI_STATERNK'].values[0]
-            
-            # Final Master Record
-            record = {
-                'image_index': patient['Image Index'],
-                'pathology': patient['Finding Labels'],
-                'age': age,
-                'gender': gender,
-                
-                # Anchor Data from ADI Dataset
-                'synthetic_zip': sampled_context['ZIP_4'].values[0],
-                'adi_state_rank': adi_rank,
-                
-                # --- FEATURE ENGINEERING FROM FINDINGS ---
-                
-                # Finding #5: Binary flag for the "Top 15%" threshold
-                'is_top_15_risk': 1 if adi_rank >= 8.5 else 0,
-                
-                # Finding #3: Rural Treatment Gap (1.25 Multiplier)
-                'rural_penalty': 1.25 if (age >= 65 and adi_rank >= 9) else 1.0,
-                
-                # Finding #2: Pediatric Risk Multiplier
-                'pediatric_idx': 1.20 if age <= 18 else 1.0,
-                
-                # Finding #3.1: Psychosocial Stress Factor (Gender Pay Gap Proxy)
-                'psych_stress': 1.05 if gender == 'F' else 1.0
-            }
-            master_records.append(record)
+    # Pre-filter
+    high_risk_adi = adi_df[adi_df['ADI_STATERNK'] >= 8].reset_index(drop=True)
 
-        return pd.DataFrame(master_records)
+    n = len(clinical_df)
 
-    
-    except Exception as e:
-        raise HEPException(e,sys)
+    # Pre-sample once
+    general_samples = adi_df.sample(n=n, replace=True, random_state=42).reset_index(drop=True)
+    high_risk_samples = high_risk_adi.sample(n=n, replace=True, random_state=42).reset_index(drop=True)
 
+    # Risk mask
+    age = clinical_df['Patient Age']
+    is_high_risk = (age >= 65) | (age <= 24)
+
+    # Assign ADI
+    assigned_adi = general_samples.copy()
+    assigned_adi.loc[is_high_risk.values] = high_risk_samples.loc[is_high_risk.values]
+
+    # Merge (NO column loss)
+    master_df = pd.concat(
+        [clinical_df.reset_index(drop=True), assigned_adi],
+        axis=1
+    )
+
+    # Engineered features
+    adi_rank = master_df['ADI_STATERNK']
+
+    master_df['is_top_15_risk'] = (adi_rank >= 8.5).astype(int)
+    master_df['rural_penalty'] = ((master_df['Patient Age'] >= 65) & (adi_rank >= 9)).map({True:1.25, False:1.0})
+    master_df['pediatric_idx'] = (master_df['Patient Age'] <= 18).map({True:1.2, False:1.0})
+    master_df['psych_stress'] = (master_df['Patient Gender'] == 'F').map({True:1.05, False:1.0})
+    master_df['synthetic_context'] = True
+
+    return master_df

@@ -1,9 +1,7 @@
-from logger import logging
-from exception import HEPException
 import os,sys
 from logger import logging
 from exception import HEPException
-from workflow.scripts import omop_mapping
+from workflow.scripts.omop_mapping import omop_mapping
 from workflow.scripts.etl_clinical import run_clinical_etl
 from workflow.scripts.etl_spatial import run_etl_spatial
 from workflow.scripts.etl_visual import run_visual_etl_process
@@ -13,8 +11,8 @@ import json
 
 path= load_config(config_path="config\path.yaml")
 
-class data_preprocessing():
-    def __init__(self,output_dir):
+class data_preprocessing:
+    def __init__(self):
         self.output_dir=path['PROCESSED_PATH']
 
     def main_preprocessing_pipeline(self):
@@ -24,22 +22,22 @@ class data_preprocessing():
 
             #step 1 clinical etl
             logging.info("Running clinical etl pipeline..")
-            processed_clinical_df =run_clinical_etl(input_path=path['CLINICAL_PATH'])
+            processed_clinical_df =run_clinical_etl(input_path=path['CLINICAL_PATH'],output_path=self.output_dir)
             
             logging.info("Running spatial etl pipeline")
             
-            processed_spatial_df= run_etl_spatial(input_path=[path['ADI_PATH']])
+            processed_spatial_df= run_etl_spatial(input_path=path['ADI_PATH'],output_path=self.output_dir)
             
             #visual etl visual
             png_found = False
-            image_root = os.path.join(path['IMAGES_PATH'], "images") # Targeting data/images/images
-            png_found=False
+     
             for root,dir,files in os.walk(path['IMAGES_PATH']):
                 for file in files:
                     if file.endswith(".png"):
                         png_found=True
                         break
             
+            global_mean, global_std = None, None
             if png_found:
                 logging.info("Running visual etl")
                 global_mean,global_std= run_visual_etl_process(df=processed_clinical_df,target_size=(224,224))
@@ -52,7 +50,7 @@ class data_preprocessing():
             }
             stats_path=path['STATS_PATH']
             with open(stats_path,"w") as f:
-                json.dump(stats)
+                json.dump(stats, f, indent=2)
             logging.info(f"global normalization saved to {stats_path}")
 
             logging.info("Running linkage between clinical and spatial data")
@@ -67,3 +65,9 @@ class data_preprocessing():
 
         except Exception as e:
             raise HEPException(e,sys)
+
+if __name__=="__main__":
+    logging.info("preproecss stared succesfully")
+    data_preprocess=data_preprocessing()
+    res= data_preprocess.main_preprocessing_pipeline()
+    logging.info("data preproecssing completed succesffully")

@@ -23,9 +23,9 @@ def omop_mapping(master_df,output_dir):
         'Fibrosis': 258780,
         'Pleural_Thickening': 4053006,
         'Hernia': 201826
-}
+         }
       
-        master_df['gender_concept_id']= master_df['Gender'].map(gender_mapping)
+        master_df['gender_concept_id']= master_df['Patient Gender'].map(gender_mapping)
         for label,disease_concept_id in disease_omop_map.items():
             master_df[disease_concept_id] = master_df['Finding Labels'].apply(lambda x:1 if label in x else 0)
 

@@ -23,7 +23,7 @@ def run_etl_spatial(input_path,output_path):
             os.makedirs(output_path,exist_ok=True)
             spatial_data= df.to_csv(os.path.join(output_path,'spatial_data.csv'),index=False)
            
-            return spatial_data,wi_state_median
+            return df
         except Exception as e:
             raise HEPException(e,sys) from e
 

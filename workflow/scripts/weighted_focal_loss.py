@@ -9,7 +9,7 @@ class WeightedFocalLoss(nn.Module):
         self.register_buffer('alpha', alpha)
         self.gamma=gamma
 
-    def forward(self,inputs,targets):
+    def forward(self,inputs,targets,patient_weights):
         ## 1. Standard Binary Cross Entropy with Logits (Includes Sigmoid)
         bce_loss= F.binary_cross_entropy_with_logits(inputs,targets,reduction='none')
 
@@ -18,6 +18,10 @@ class WeightedFocalLoss(nn.Module):
 
         # 3. Apply Alpha (ETL Weights) and Gamma (Focusing)
         focal_loss= self.alpha *(1-pt)**self.gamma *bce_loss
+
+        # 3. Apply Patient Weights (Soft-Capping)
+        # patient_weights is [Batch], we unsqueeze to [Batch, 1] to multiply
+        final_loss = focal_loss * patient_weights.unsqueeze(1)
         
         #4. Average the loss across the batch for the optimizer
-        return focal_loss.mean()
+        return final_loss.mean()

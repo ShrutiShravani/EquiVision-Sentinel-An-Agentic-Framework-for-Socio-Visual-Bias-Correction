@@ -1,35 +1,40 @@
-## 📚 Research & Literature Foundation
-This project is built upon state-of-the-art research in clinical informatics and health equity.
+# 🔬 Research & Theoretical Foundation
+## Project: EquiVision Sentinel (SVA)
 
-### Key Literature
-1. **Clinical Standards:** Developed in alignment with the *OHDSI/OMOP Common Data Model* to ensure international research interoperability.
-2. **Socioeconomic Modeling:** Implementation of the *Area Deprivation Index (ADI)* based on the methodology of Dr. Amy Kind (UW-Madison), linking geography to clinical outcomes.
-3. **Multimodal Fusion:** Inspired by "Multimodal Healthcare Modeling" (MDPI 2024), utilizing late-fusion techniques for pixel and tabular data.
+### 1. Problem Statement: The "Hardware-Equity Gap"
+Traditional Medical AI assumes high-fidelity input. Research shows that models trained on high-resource clinical data (low ADI) suffer **Performance Collapse** when deployed in low-resource settings (high ADI) due to hardware-induced noise and artifacts. This project moves beyond "prediction" to **Active Bias Neutralization.**
 
-### Research Methodology
-- **Data Harmonization:** Applied Deterministic Record Linkage to bridge de-identified NIH datasets with spatial UW Atlas data.
-- **Ethics & Bias:** Documented a "Selection Bias Mitigation" strategy in `docs/research/bias_audit.md`.
+---
 
+### 2. Theoretical Pillars
 
-# Research Methodology & Theoretical Foundation
-**Project:** WHEP-IS (Wisconsin Health Equity Predictor)
+#### A. Vision Architecture: Transformers over CNNs
+*Based on Dosovitskiy et al. (2020).* We utilize **Vision Transformers (ViT)** as our diagnostic backbone. Unlike traditional CNNs, ViT’s **Global Self-Attention** allows the model to correlate distant radiographic features, which is essential for identifying patterns across varying levels of image degradation (noise) found in different socio-economic tiers.
 
-## 1. Problem Statement: The "Social Blind Spot"
-Traditional Computer Vision (CV) in healthcare operates on a "Unimodal" basis, ignoring the Social Determinants of Health (SDOH). This research addresses the diagnostic gap by integrating neighborhood-level socioeconomic priors into the model's attention mechanism.hy this makes you a "Senior" Researcher: When you talk to an interviewer, you say:
+#### B. Domain Adaptation via Diffusion
+*Based on Rombach et al. (2022).* We leverage **Latent Diffusion Models (LDM)** to perform Image-to-Image translation, mapping high-fidelity "Urban" images into "Rural/Low-Resource" styles without losing clinical significance.
 
-"I standardized my metadata using OMOP CDM. This ensures that if my model is deployed in a real hospital system (like Epic or Cerner), the data structure is already compatible with their clinical databases."
+#### C. Structural Integrity (Anatomical Locking)
+*Based on Zhang & Agrawala (2023) - ControlNet.* We implement spatial conditioning to ensure that while the "Socio-Visual Style" changes (noise/contrast), the **Anatomical Truth** (bones/organs) remains 100% invariant.
 
-## 2. Theoretical Pillars (Literature Review)
-* **Socioeconomic Framework:** *Kind et al. (2014)*. We utilize the Area Deprivation Index (ADI) to quantify neighborhood disadvantage.
-* **Vision Architecture:** *Dosovitskiy et al. (2020)*. We move beyond CNNs to use Vision Transformers (ViT), allowing for global pixel dependency.
-* **Multimodal Fusion:** *Huang et al. (2020)*. We apply "Late-Fusion" with an Attention-Gating mechanism to prevent one data modality from overwhelming another.
+#### D. Agentic Evaluation (Auditor-Critic)
+We apply research in **Agentic Workflows** via LangGraph to automate the quality assurance of synthetic medical data, ensuring a closed-loop system that self-corrects hallucinations.
 
-## 3. Algorithmic Innovation: Attention-Gated Spatial Fusion
-Instead of treating ADI as a simple tabular feature, our innovation uses the ADI score as a **Spatial Prior**. 
+---
 
-> **Hypothesis:** By weighting the transformer's self-attention layers with ADI-derived risk scores, the model will prioritize subtle radiographic features that correlate with long-term exposure to environmental stressors (e.g., pollution or chronic stress in high-ADI zones).
+### 3. Algorithmic Innovation: Adversarial Fairness Synthesis (AFS)
+Our primary innovation is the **Closed-Loop Agentic Factory**. Instead of static data augmentation, we use an autonomous agent to:
 
-## 4. Evaluation Metrics for Equity
-We do not just use Accuracy. To evaluate the "Unknown," we measure:
-* **Fairness Discrepancy:** Comparing model performance across ADI Deciles (1 vs 10).
-* **Clinical Utility:** Measuring the reduction in "False Negatives" for high-vulnerability populations.
+*   **Identify:** Detect performance gaps in specific ADI deciles (Phase 1).
+*   **Synthesize:** Generate "Anatomically-Locked" counterfactuals using ADI-driven prompts (Phase 2).
+*   **Verify:** A Critic Agent (Med-CLIP) validates the medical accuracy of the synthetic data before retraining.
+
+---
+
+### 4. Methodology: The Socio-Visual Aligner (SVA) Loop
+
+*   **Socio-Technical Mapping:** We translated **ADI (Area Deprivation Index)** ranks into a taxonomy of **Radiographic Artifacts** (e.g., ADI-10 = Quantum Mottle + Grid Cutoff).
+*   **Validation Metrics:**
+    *   **FID (Fréchet Inception Distance):** To ensure synthetic image quality.
+    *   **Anatomical SSIM:** To guarantee zero structural hallucination.
+    *   **Equity Gain:** Measuring the reduction in loss discrepancy between ADI deciles after retraining.

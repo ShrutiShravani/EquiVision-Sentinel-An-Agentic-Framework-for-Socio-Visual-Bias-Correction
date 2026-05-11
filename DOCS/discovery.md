@@ -126,4 +126,3 @@ Latency: [Your latency] ms (Disk-to-RAM).
 
 Engineering Impact (Step 2: ETL): * Action: Because 1024x1024 is too large for a Vision Transformer (ViT) to process efficiently, we must implement On-the-fly Resizing to 224x224 in the DataLoader.
 
-Optimization: With a latency of X ms, we will require num_workers > 4 in PyTorch to prevent the GPU from waiting for the disk (I/O Bottleneck).

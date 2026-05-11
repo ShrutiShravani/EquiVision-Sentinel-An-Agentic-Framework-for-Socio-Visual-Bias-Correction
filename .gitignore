@@ -1,6 +1,25 @@
+# --- Data & Artifacts ---
+# Ignore raw and processed data (Keep the structure, not the files)
 data/images/
 data/data/*.csv
-*.zip
-*.pth
 data/processed/*.csv
 data/processed/*.json
+*.zip
+
+# --- Model Weights & MLflow ---
+# Ignore heavy model weights and local experiment databases
+*.pth
+mlruns/
+mlflow.db
+
+# --- Logs & Performance ---
+# Ignore local run logs and specific documentation that is auto-generated
+logs/
+DOCS/model_card.md
+DOCS/metrics.md
+
+# --- OS & Environment ---
+.env
+__pycache__/
+.DS_Store
+venv
